@@ -68,7 +68,7 @@ def generate_od_true(config):
 
     return od_true
 
-def create_assignment_matrix(graph):
+def create_assignment_matrix(graph):#P matrix is created here
     edge_list = list(graph.edges)
     od_pairs = [(origin, destination) for origin in graph.nodes for destination in graph.nodes if origin != destination]
     number_of_edges = len(edge_list)
@@ -95,12 +95,45 @@ def create_assignment_matrix(graph):
 
     return assignment_matrix, edge_list, od_pairs, shortest_paths
 
+
+
+def generate_link_counts(assignment_matrix , od_true, ad_pairs, config):
+    od_vector =np.array([od_true[origin, destination] for origin, destination in od_pairs])
+    true_link_counts = assignment_matrix @ od_vector
+    noise_level = config["od_generator"]["noise_level"]
+
+    if noise_level>0:
+        rng = np.random.default_rng(config["seed"] + 2)
+        noise = rng.normal(
+            loc=0,
+            scale=noise_level * np.maximum(true_link_counts, 1)
+        )
+        observed_link_counts = np.rint(true_link_counts + noise).astype(int)
+        observed_link_counts = np.maximum(observed_link_counts, 0)
+
+    else:
+        observed_link_counts = true_link_counts.copy()
+    return observed_link_counts, true_link_counts, od_vector
+
 if __name__ =="__main__":
 
     config = load_config()
     graph = generate_network(config)
     assignment_matrix, edge_list, od_pairs, shortest_paths = (
     create_assignment_matrix(graph))
+    od_true = generate_od_true(config)
+
+    assignment_matrix, edge_list, od_pairs, shortest_paths = (
+        create_assignment_matrix(graph)
+    )
+
+    link_counts, true_link_counts, od_vector = generate_link_counts(
+        assignment_matrix,
+        od_true,
+        od_pairs,
+        config
+    )
+
 
     # print("Nodes:")
     # print(list(graph.nodes))
@@ -131,3 +164,14 @@ if __name__ =="__main__":
 
     # print("\nP shape:")
     # print(assignment_matrix.shape)
+#testing link counts
+    print("\nOD true:")
+    print(od_true)
+
+    print("\nTrue link counts:")
+    for edge, count in zip(edge_list, true_link_counts):
+        print(edge, ":", count)
+
+    print("\nObserved link counts:")
+    for edge, count in zip(edge_list, link_counts):
+        print(edge, ":", count)
