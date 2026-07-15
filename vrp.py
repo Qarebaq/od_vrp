@@ -17,6 +17,107 @@ def create_distance_matrix(graph):
     )
     return np.asarray(distance_matrix)
 
+
+def calculate_route_cost(
+    route,
+    distance_matrix
+):
+    cost = 0
+
+    for current_node, next_node in zip(
+        route[:-1],
+        route[1:]
+    ):
+        cost += distance_matrix[
+            current_node,
+            next_node
+        ]
+
+    return cost
+
+
+
+def solve_vrp(
+    demands,
+    distance_matrix,
+    depot,
+    number_of_vehicles,
+    vehicle_capacity
+):
+    customers = {
+        node
+        for node in range(len(demands))
+        if node != depot and demands[node] > 0
+    }
+
+    total_capacity = (
+        number_of_vehicles * vehicle_capacity
+    )
+
+    if np.sum(demands) > total_capacity:
+        raise ValueError(
+            "Total demand is greater than fleet capacity."
+        )
+
+    if np.max(demands) > vehicle_capacity:
+        raise ValueError(
+            "A customer's demand is greater than vehicle capacity."
+        )
+
+    routes = []
+
+    for _ in range(number_of_vehicles):
+        route = [depot]
+        current_node = depot
+        current_load = 0
+
+        while customers:
+            feasible_customers = [
+                customer
+                for customer in customers
+                if (
+                    current_load + demands[customer]
+                    <= vehicle_capacity
+                )
+            ]
+
+            if not feasible_customers:
+                break
+
+            next_customer = min(
+                feasible_customers,
+                key=lambda customer: distance_matrix[
+                    current_node,
+                    customer
+                ]
+            )
+
+            route.append(next_customer)
+
+            current_load += demands[next_customer]
+            current_node = next_customer
+
+            customers.remove(next_customer)
+
+        route.append(depot)
+
+        routes.append({
+            "route": route,
+            "load": current_load,
+            "cost": calculate_route_cost(
+                route,
+                distance_matrix
+            )
+        })
+
+    if customers:
+        raise ValueError(
+            "The available vehicles could not serve all customers."
+        )
+
+    return routes
+
+
 if __name__ == "__main__":
     from generator import (load_config, generate_network, generate_od_true, create_assignment_matrix, generate_link_counts)
 
@@ -77,3 +178,39 @@ if __name__ == "__main__":
     #testing create_distance_matrix
     # print("\nDistance matrix:")
     # print(distance_matrix)
+
+#testing calculate_route_cost
+
+    # number_of_vehicles = config["vrp"]["number_of_vehicles"]
+    # vehicle_capacity = config["vrp"]["vehicle_capacity"]
+
+    # routes = solve_vrp(
+    #     demands,
+    #     distance_matrix,
+    #     depot,
+    #     number_of_vehicles,
+    #     vehicle_capacity
+    # )
+
+    # print("\nVRP routes:")
+
+    # total_cost = 0
+
+    # for vehicle_index, route_data in enumerate(
+    #     routes,
+    #     start=1
+    # ):
+    #     print(
+    #         "Vehicle",
+    #         vehicle_index,
+    #         "route:",
+    #         route_data["route"],
+    #         "load:",
+    #         round(route_data["load"], 2),
+    #         "cost:",
+    #         round(route_data["cost"], 2)
+    #     )
+
+    #     total_cost += route_data["cost"]
+
+    # print("\nTotal fleet cost:", round(total_cost, 2))
