@@ -1,0 +1,30 @@
+{
+"seed" : 42,
+
+"network": {
+    "number_of_nodes": 5,
+    "edge_probability" : 0.6,
+    "minimum_edge_cost": 1,
+    "maximum_edge_cost" : 10
+},
+
+"od_generator": {
+    "minimum_trip_count": 0,
+    "maximum_trip_count": 5,
+    "noise_level": 0.0
+},
+
+
+"estimator": {
+    "lambda": 0.01
+},
+
+
+"vrp":{
+    "depot" : 0,
+    "number_of_vehicles": 3,
+    "vehicle_capacity" : 30
+}
+
+
+}
