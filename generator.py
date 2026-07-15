@@ -97,7 +97,7 @@ def create_assignment_matrix(graph):#P matrix is created here
 
 
 
-def generate_link_counts(assignment_matrix , od_true, ad_pairs, config):
+def generate_link_counts(assignment_matrix , od_true, od_pairs, config):
     od_vector =np.array([od_true[origin, destination] for origin, destination in od_pairs])
     true_link_counts = assignment_matrix @ od_vector
     noise_level = config["od_generator"]["noise_level"]
