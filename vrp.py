@@ -1,10 +1,21 @@
 import numpy as np 
+import networkx as nx
 
 def calculate_demonds(od_matrix,depot):
     demands = np.sum(od_matrix, axis=0)#اینجا این یعنی ستون های ملتریس جمع بشن با هم حتما حواست باشه بعدا سوتی ندی
     demands[depot] = 0
     return demands
 
+
+def create_distance_matrix(graph):
+    node_list = sorted(graph.nodes)
+
+    distance_matrix = nx.floyd_warshall_numpy(
+        graph,
+        nodelist=node_list,
+        weight="cost"
+    )
+    return np.asarray(distance_matrix)
 
 if __name__ == "__main__":
     from generator import (load_config, generate_network, generate_od_true, create_assignment_matrix, generate_link_counts)
@@ -45,6 +56,8 @@ if __name__ == "__main__":
     depot = config["vrp"]["depot"]
     demands = calculate_demonds(od_est,depot)
 
+    distance_matrix = create_distance_matrix(graph)
+
 
     #testing calculate_demonds
     # print("\nOD estimated:")
@@ -59,3 +72,8 @@ if __name__ == "__main__":
     #         "demand:",
     #         round(demand, 2)
     #     )
+
+
+    #testing create_distance_matrix
+    # print("\nDistance matrix:")
+    # print(distance_matrix)
