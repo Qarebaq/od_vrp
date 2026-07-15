@@ -9,7 +9,7 @@ def evaluate_od(
     estimated_values = np.array([od_est[origin, destination] for origin, destination in od_pairs])
 
     errors = estimated_values - true_values
-    mae = np.mean(errors ** 2)
+    mae = np.mean(np.abs(errors))
     rmse = np.sqrt(np.mean(errors ** 2))
 
     total_relative_error = np.sum(np.abs(errors)) / np.sum(true_values)
