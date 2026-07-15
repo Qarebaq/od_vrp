@@ -68,13 +68,39 @@ def generate_od_true(config):
 
     return od_true
 
+def create_assignment_matrix(graph):
+    edge_list = list(graph.edges)
+    od_pairs = [(origin, destination) for origin in graph.nodes for destination in graph.nodes if origin != destination]
+    number_of_edges = len(edge_list)
+    number_of_od_pairs = len(od_pairs)
 
+    assignment_matrix = np.zeros((number_of_edges, number_of_od_pairs), dtype=int)
+
+    edge_index = {edge: index for index, edge in enumerate(edge_list)}
+    shortest_paths = {}
+    for column, (origin, destination) in enumerate(od_pairs):
+        path = nx.shortest_path(
+            graph,
+            source=origin,
+            target=destination,
+            weight="cost"
+        )
+
+        shortest_paths[(origin, destination)] = path
+        path_edges = list(zip(path[:-1], path[1:]))
+
+        for edge in path_edges:
+            row = edge_index[edge]
+            assignment_matrix[row, column] = 1
+
+    return assignment_matrix, edge_list, od_pairs, shortest_paths
 
 if __name__ =="__main__":
 
     config = load_config()
     graph = generate_network(config)
-
+    assignment_matrix, edge_list, od_pairs, shortest_paths = (
+    create_assignment_matrix(graph))
 
     # print("Nodes:")
     # print(list(graph.nodes))
@@ -90,7 +116,18 @@ if __name__ =="__main__":
     # print(adjacency_matrix)
 
 #testing od_true
-    od_true = generate_od_true(config)
+    # od_true = generate_od_true(config)
 
-    print("\nOD true:")
-    print(od_true)
+    # print("\nOD true:")
+    # print(od_true)
+
+#testing P matrix and shortest path 
+    # print("\nShortest paths:")
+    # for od_pair, path in shortest_paths.items():
+    #     print(od_pair, ":", path)
+
+    # print("\nAssignment matrix P:")
+    # print(assignment_matrix)
+
+    # print("\nP shape:")
+    # print(assignment_matrix.shape)
