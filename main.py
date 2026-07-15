@@ -75,7 +75,7 @@ true_validation= validate_routes(true_routes,true_demands,depot,vehicle_capacity
 #View ////////
 init(autoreset=True)
 
-print(Fore.BLACK + "\nProgram Generated Data:\n")
+print(Fore.CYAN + "\nProgram Generated Data:\n")
 print(Fore.GREEN + "\nAdjacency matrix:")
 print(adjacency_matrix)
 
@@ -84,8 +84,8 @@ print(od_true)
 
 print(Fore.GREEN +"\nObserved link counts: ")
 print(observed_link_counts)
-print(Fore.BLACK + "=======================================\n")
-print(Fore.BLACK + "\nEstimator Results:\n")
+print(Fore.CYAN + "=======================================\n")
+print(Fore.CYAN + "\nEstimator Results:\n")
 print(Fore.GREEN + "\nOD estimated:")
 print(np.round(od_est, 2))
 print(Fore.GREEN + "\nMAE:")
@@ -100,8 +100,8 @@ print(Fore.GREEN + "\nReconstruction RMSE: ")
 print(round(link_metrics["reconstruction_rmse"], 4))
 
 
-print(Fore.BLACK + "=======================================\n")
-print(Fore.BLACK + "\nEstimated OD routes")
+print(Fore.CYAN + "=======================================\n")
+print(Fore.CYAN + "\nEstimated OD routes")
 
 vehicle_number = 1
 for route_data in estimated_routes:
@@ -115,9 +115,9 @@ for route_data in estimated_routes:
 print("\nEstimated OD total cost:")
 print(round(estimated_total_cost, 2))
 
-print(Fore.BLACK + "========================================\n")
+print(Fore.CYAN + "========================================\n")
 
-print(Fore.BLACK + "\nTrue OD routes")
+print(Fore.CYAN + "\nTrue OD routes")
 
 vehicle_number = 1
 
@@ -135,8 +135,8 @@ print(round(true_total_cost, 2))
 print(Fore.GREEN + "\nCost difference between estimated and true OD:")
 print(round(cost_difference, 2))
 
-print(Fore.BLACK + "========================================\n")
-print(Fore.BLACK + "\n Validation:")
+print(Fore.CYAN + "========================================\n")
+print(Fore.CYAN + "\n Validation:")
 print(Fore.GREEN + "Estimated routes with estimated demands valid:")
 print(estimated_validation["valid"])
 print(Fore.GREEN + "Estimated routes with true demands valid:")
