@@ -44,6 +44,11 @@ def generate_network(config):
         
 
 
+def create_adjacency_matrix(graph):
+    adjacency_matrix =nx.to_numpy_array(graph , weight="cost" , dtype=int)
+
+    return adjacency_matrix
+
 
 
 
@@ -53,8 +58,16 @@ if __name__ =="__main__":
     config = load_config()
     graph = generate_network(config)
 
-    print("Nodes:")
-    print(list(graph.nodes))
-    print("\nEdges: ")
-    for source, destination, data in graph.edges(data=True):
-        print(source, "->" ,destination, "cost: " , data["cost"])
+
+    # print("Nodes:")
+    # print(list(graph.nodes))
+    # print("\nEdges: ")
+    # for source, destination, data in graph.edges(data=True):
+    #     print(source, "->" ,destination, "cost: " , data["cost"])
+    
+
+#for testing adjecency matrix
+    # adjacency_matrix = create_adjacency_matrix(graph)
+
+    # print("\nAdjacency matrix:")
+    # print(adjacency_matrix)
