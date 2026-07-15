@@ -1,7 +1,7 @@
 import numpy as np 
 import networkx as nx
 
-def calculate_demonds(od_matrix,depot):
+def calculate_demands(od_matrix,depot):
     demands = np.sum(od_matrix, axis=0)#اینجا این یعنی ستون های ملتریس جمع بشن با هم حتما حواست باشه بعدا سوتی ندی
     demands[depot] = 0
     return demands
@@ -116,7 +116,13 @@ def solve_vrp(
         )
 
     return routes
+def calculate_total_cost(routes):
+    total_cost = sum(
+        route_data["cost"]
+        for route_data in routes
+    )
 
+    return total_cost
 
 if __name__ == "__main__":
     from generator import (load_config, generate_network, generate_od_true, create_assignment_matrix, generate_link_counts)
@@ -155,12 +161,12 @@ if __name__ == "__main__":
     )
 
     depot = config["vrp"]["depot"]
-    demands = calculate_demonds(od_est,depot)
+    demands = calculate_demands(od_est,depot)
 
     distance_matrix = create_distance_matrix(graph)
 
 
-    #testing calculate_demonds
+    #testing calculate_demands
     # print("\nOD estimated:")
     # print(np.round(od_est, 2))
 
@@ -214,3 +220,89 @@ if __name__ == "__main__":
     #     total_cost += route_data["cost"]
 
     # print("\nTotal fleet cost:", round(total_cost, 2))
+    #testing calculate_total_cost
+    # number_of_vehicles = config["vrp"]["number_of_vehicles"]
+    # vehicle_capacity = config["vrp"]["vehicle_capacity"]
+    # estimated_demands = calculate_demands(
+    #     od_est,
+    #     depot
+    # )
+
+    # estimated_routes = solve_vrp(
+    #     estimated_demands,
+    #     distance_matrix,
+    #     depot,
+    #     number_of_vehicles,
+    #     vehicle_capacity
+    # )
+
+    # estimated_total_cost = calculate_total_cost(
+    #     estimated_routes
+    # )
+    # true_demands = calculate_demands(
+    #     od_true,
+    #     depot
+    # )
+
+    # true_routes = solve_vrp(
+    #     true_demands,
+    #     distance_matrix,
+    #     depot,
+    #     number_of_vehicles,
+    #     vehicle_capacity
+    # )
+
+    # true_total_cost = calculate_total_cost(
+    #     true_routes
+    # )
+
+    # print("\nRoutes based on estimated OD:")
+
+    # for vehicle_index, route_data in enumerate(
+    #     estimated_routes,
+    #     start=1
+    # ):
+    #     print(
+    #         "Vehicle",
+    #         vehicle_index,
+    #         "route:",
+    #         route_data["route"],
+    #         "load:",
+    #         round(route_data["load"], 2),
+    #         "cost:",
+    #         round(route_data["cost"], 2)
+    #     )
+
+    # print(
+    #     "Estimated-OD total cost:",
+    #     round(estimated_total_cost, 2)
+    # )
+
+    # print("\nRoutes based on true OD:")
+
+    # for vehicle_index, route_data in enumerate(
+    #     true_routes,
+    #     start=1
+    # ):
+    #     print(
+    #         "Vehicle",
+    #         vehicle_index,
+    #         "route:",
+    #         route_data["route"],
+    #         "load:",
+    #         round(route_data["load"], 2),
+    #         "cost:",
+    #         round(route_data["cost"], 2)
+    #     )
+    # print(
+    #     "True-OD total cost:",
+    #     round(true_total_cost, 2)
+    # )
+    # cost_difference = (
+    #     estimated_total_cost
+    #     - true_total_cost
+    # )
+    # print(
+    #     "\nCost difference:",
+    #     round(cost_difference, 2)
+    # )
