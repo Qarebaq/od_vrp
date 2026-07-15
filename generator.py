@@ -2,6 +2,8 @@ import json
 import random
 import pathlib
 import networkx as nx
+import numpy as np
+
 
 def load_config(config_path = "config.json"):#just importing config file here
     with open(config_path, "r") as file:
@@ -52,6 +54,21 @@ def create_adjacency_matrix(graph):
 
 
 
+def generate_od_true(config):
+
+
+    number_of_nodes = config["network"]["number_of_nodes"]
+    minimum_trip_count = config["od_generator"]["minimum_trip_count"]
+    maximum_trip_count = config["od_generator"]["maximum_trip_count"]
+
+    rng = np.random.default_rng(config["seed"]+1 )
+
+    od_true = rng.integers(low=minimum_trip_count, high=maximum_trip_count + 1, size=(number_of_nodes, number_of_nodes))
+    np.fill_diagonal(od_true, 0)
+
+    return od_true
+
+
 
 if __name__ =="__main__":
 
@@ -71,3 +88,9 @@ if __name__ =="__main__":
 
     # print("\nAdjacency matrix:")
     # print(adjacency_matrix)
+
+#testing od_true
+    od_true = generate_od_true(config)
+
+    print("\nOD true:")
+    print(od_true)
