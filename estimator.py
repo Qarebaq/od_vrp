@@ -58,53 +58,53 @@ def vector_to_od_matrix(od_vector, od_pairs, number_of_nodes):
 
     return od_matrix
 
-if __name__ == "__main__":
-    from generator import (
-        load_config,
-        generate_network,
-        generate_od_true,
-        create_assignment_matrix,
-        generate_link_counts
-    )
+# if __name__ == "__main__":
+#     from generator import (
+#         load_config,
+#         generate_network,
+#         generate_od_true,
+#         create_assignment_matrix,
+#         generate_link_counts
+#     )
 
-    config=load_config()
+#     config=load_config()
 
-    graph=generate_network(config)
+#     graph=generate_network(config)
 
-    od_true= generate_od_true(config)
+#     od_true= generate_od_true(config)
 
-    assignment_matrix, edge_list, od_pairs, shortest_paths = (
-        create_assignment_matrix(graph)
-    )
+#     assignment_matrix, edge_list, od_pairs, shortest_paths = (
+#         create_assignment_matrix(graph)
+#     )
 
-    link_counts, true_link_counts, od_true_vector = (
-        generate_link_counts(
-            assignment_matrix,
-            od_true,
-            od_pairs,
-            config
-        )
-    )
+#     link_counts, true_link_counts, od_true_vector = (
+#         generate_link_counts(
+#             assignment_matrix,
+#             od_true,
+#             od_pairs,
+#             config
+#         )
+#     )
 
-    lambda_value = config["estimator"]["lambda"]
+#     lambda_value = config["estimator"]["lambda"]
 
-    od_est_vector = estimate_od(
-        assignment_matrix,
-        link_counts,
-        lambda_value
-    )
+#     od_est_vector = estimate_od(
+#         assignment_matrix,
+#         link_counts,
+#         lambda_value
+#     )
 
-    number_of_nodes = config["network"]["number_of_nodes"]
+#     number_of_nodes = config["network"]["number_of_nodes"]
 
-    od_est = vector_to_od_matrix(
-        od_est_vector,
-        od_pairs,
-        number_of_nodes
-    )
+#     od_est = vector_to_od_matrix(
+#         od_est_vector,
+#         od_pairs,
+#         number_of_nodes
+#     )
 
-    estimated_link_counts = (
-        assignment_matrix @ od_est_vector
-    )
+#     estimated_link_counts = (
+#         assignment_matrix @ od_est_vector
+#     )
 #testing od_est and estimated_link_counts
     # print("\nOD true:")
     # print(od_true)

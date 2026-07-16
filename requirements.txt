@@ -1,0 +1,4 @@
+colorama==0.4.6
+networkx==3.6.1
+numpy==2.5.1
+scipy==1.18.0

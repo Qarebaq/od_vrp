@@ -141,24 +141,24 @@ def generate_link_counts(assignment_matrix , od_true, od_pairs, config):
 
 
 
-if __name__ =="__main__":
+# if __name__ =="__main__":
 
-    config = load_config()
-    graph = generate_network(config)
-    assignment_matrix, edge_list, od_pairs, shortest_paths = (
-    create_assignment_matrix(graph))
-    od_true = generate_od_true(config)
+#     config = load_config()
+#     graph = generate_network(config)
+#     assignment_matrix, edge_list, od_pairs, shortest_paths = (
+#     create_assignment_matrix(graph))
+#     od_true = generate_od_true(config)
 
-    assignment_matrix, edge_list, od_pairs, shortest_paths = (
-        create_assignment_matrix(graph)
-    )
+#     assignment_matrix, edge_list, od_pairs, shortest_paths = (
+#         create_assignment_matrix(graph)
+#     )
 
-    link_counts, true_link_counts, od_vector = generate_link_counts(
-        assignment_matrix,
-        od_true,
-        od_pairs,
-        config
-    )
+#     link_counts, true_link_counts, od_vector = generate_link_counts(
+#         assignment_matrix,
+#         od_true,
+#         od_pairs,
+#         config
+#     )
 
 
     # print("Nodes:")
