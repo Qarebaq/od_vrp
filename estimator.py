@@ -1,44 +1,26 @@
 import numpy as np 
 from scipy.optimize import minimize
 
-def objective_function(
-    od_vector,
-    assignment_matrix,
-    link_counts,
-    lambda_value
-):
+def objective_function(od_vector,assignment_matrix,link_counts,lambda_value):
     estimated_link_counts = assignment_matrix @ od_vector
 
-    link_count_error = np.sum(
-        (estimated_link_counts - link_counts) ** 2
-    )
+    link_count_error = np.sum((estimated_link_counts - link_counts) ** 2)
 
-    regularization_error = (
-        lambda_value * np.sum(od_vector ** 2)
-    )
+    regularization_error = (lambda_value * np.sum(od_vector ** 2))
 
-    total_error = (
-        link_count_error
-        + regularization_error
-    )
+    total_error= (link_count_error+ regularization_error)
 
     return total_error
 
 
-def estimate_od(
-    assignment_matrix,
-    link_counts,
-    lambda_value
-):
+def estimate_od(assignment_matrix,link_counts,lambda_value):
     number_of_od_pairs = assignment_matrix.shape[1]
-
     initial_od_vector = np.zeros(number_of_od_pairs)
 
-    bounds = [
-        (0, None)
-        for _ in range(number_of_od_pairs)
-    ]
-
+    bounds= []
+    for index in range(number_of_od_pairs):
+        bounds.append((0, None))
+        
     result = minimize(
         objective_function,
         initial_od_vector,
@@ -48,34 +30,33 @@ def estimate_od(
             lambda_value
         ),
         method="L-BFGS-B",# این همون الگوریتمی هست که من انتخاب کردم برای حل این مسيله(همون تابع حل کننده)
-        bounds=bounds
-    )
+        bounds=bounds)
 
     if not result.success:
-        raise RuntimeError(
-            "OD estimation failed: " + result.message
-        )
+        raise RuntimeError("OD estimation failed: " + result.message)
 
     return result.x
 
 
-def vector_to_od_matrix(
-    od_vector,
-    od_pairs,
-    number_of_nodes
-):
+def vector_to_od_matrix(od_vector, od_pairs, number_of_nodes):
     od_matrix = np.zeros(
         (number_of_nodes, number_of_nodes)
     )
 
-    for value, (origin, destination) in zip(
-        od_vector,
-        od_pairs
-    ):
+    index = 0
+
+    while index < len(od_pairs):
+        pair = od_pairs[index]
+
+        origin = pair[0]
+        destination = pair[1]
+        value = od_vector[index]
+
         od_matrix[origin, destination] = value
 
-    return od_matrix
+        index = index + 1
 
+    return od_matrix
 
 if __name__ == "__main__":
     from generator import (
@@ -86,11 +67,11 @@ if __name__ == "__main__":
         generate_link_counts
     )
 
-    config = load_config()
+    config=load_config()
 
-    graph = generate_network(config)
+    graph=generate_network(config)
 
-    od_true = generate_od_true(config)
+    od_true= generate_od_true(config)
 
     assignment_matrix, edge_list, od_pairs, shortest_paths = (
         create_assignment_matrix(graph)

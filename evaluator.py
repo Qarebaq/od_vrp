@@ -1,37 +1,48 @@
 import numpy as np 
 #همانطور که از اسم تابع پیداست این تابع برای ارزیابی ماتریس OD ساخته شده
-def evaluate_od(
-        od_true,
-        od_est,
-        od_pairs
-):
-    true_values = np.array([od_true[origin, destination] for origin, destination in od_pairs])
-    estimated_values = np.array([od_est[origin, destination] for origin, destination in od_pairs])
+def evaluate_od(od_true,od_est,od_pairs):
+    true_values_list = []
+    for pair in od_pairs:
+        origin= pair[0]
+        destination = pair[1]
+        value = od_true[origin, destination]
+        true_values_list.append(value)
+    true_values= np.array(true_values_list)
+
+
+    estimated_values_list =[]
+    for pair in od_pairs:
+        origin= pair[0]
+        destination= pair[1]
+        estimated_value= od_est[origin, destination]
+        estimated_values_list.append(estimated_value)
+    estimated_values =np.array(estimated_values_list)
 
     errors = estimated_values - true_values
     mae = np.mean(np.abs(errors))
     rmse = np.sqrt(np.mean(errors ** 2))
 
-    total_relative_error = np.sum(np.abs(errors)) / np.sum(true_values)
+    total_true_values = np.sum(true_values)
+
+    if total_true_values == 0:
+        total_relative_error = 0
+    else:
+        total_absolute_error = np.sum(np.abs(errors))
+        total_relative_error = total_absolute_error / total_true_values
     return {
         "mae": mae,
         "rmse": rmse,
         "total_relative_error": total_relative_error
     }
 
-def evaluate_link_counts(
-    assignment_matrix,
-    od_est_vector,
-    observed_link_counts
-):
+def evaluate_link_counts(assignment_matrix,od_est_vector,observed_link_counts):
     reproduced_link_counts =( assignment_matrix @ od_est_vector)
 
     errors =( reproduced_link_counts - observed_link_counts)
 
     reconstruction_error = np.linalg.norm(errors)
-    reconstruction_rmse = np.sqrt(
-        np.mean(errors ** 2)
-    )
+    
+    reconstruction_rmse = np.sqrt(np.mean(errors ** 2))
 
     return {
         "reconstruction_error": reconstruction_error,

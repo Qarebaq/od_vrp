@@ -3,56 +3,41 @@ import networkx as nx
 
 def calculate_demands(od_matrix,depot):
     demands = np.sum(od_matrix, axis=0)#اینجا این یعنی ستون های ملتریس جمع بشن با هم حتما حواست باشه بعدا سوتی ندی
-    demands[depot] = 0
+    demands[depot]=0
     return demands
 
 
 def create_distance_matrix(graph):
-    node_list = sorted(graph.nodes)
+    node_list=sorted(graph.nodes)
 
-    distance_matrix = nx.floyd_warshall_numpy(
-        graph,
-        nodelist=node_list,
-        weight="cost"
-    )
+    distance_matrix = nx.floyd_warshall_numpy(graph,nodelist=node_list,weight="cost")
     return np.asarray(distance_matrix)
 
 
-def calculate_route_cost(
-    route,
-    distance_matrix
-):
+def calculate_route_cost(route,distance_matrix):
     cost = 0
 
-    for current_node, next_node in zip(
-        route[:-1],
-        route[1:]
-    ):
-        cost += distance_matrix[
-            current_node,
-            next_node
-        ]
+    for index in range(len(route)-1):
+        current_node= route[index]
+        next_node =route[index+1]
+
+
+        cost += distance_matrix[current_node,next_node]
 
     return cost
 
 
 
-def solve_vrp(
-    demands,
-    distance_matrix,
-    depot,
-    number_of_vehicles,
-    vehicle_capacity
-):
-    customers = {
-        node
-        for node in range(len(demands))
-        if node != depot and demands[node] > 0
-    }
+def solve_vrp(demands,distance_matrix,depot,number_of_vehicles,vehicle_capacity):
 
-    total_capacity = (
-        number_of_vehicles * vehicle_capacity
-    )
+    customers =set()
+    for node in range(len(demands)):
+        if node !=depot:
+            if demands[node]>0:
+                customers.add(node)
+
+
+    total_capacity = (number_of_vehicles * vehicle_capacity)
 
     if np.sum(demands) > total_capacity:
         raise ValueError(
@@ -72,25 +57,16 @@ def solve_vrp(
         current_load = 0
 
         while customers:
-            feasible_customers = [
-                customer
-                for customer in customers
-                if (
-                    current_load + demands[customer]
-                    <= vehicle_capacity
-                )
-            ]
+            feasible_customers = []
+            for customer in customers:
+                new_load= current_load+demands[customer]
+                if new_load <= vehicle_capacity:
+                    feasible_customers.append(customer)
 
             if not feasible_customers:
                 break
 
-            next_customer = min(
-                feasible_customers,
-                key=lambda customer: distance_matrix[
-                    current_node,
-                    customer
-                ]
-            )
+            next_customer = min(feasible_customers,key=lambda customer: distance_matrix[current_node,customer])
 
             route.append(next_customer)
 
@@ -104,10 +80,7 @@ def solve_vrp(
         routes.append({
             "route": route,
             "load": current_load,
-            "cost": calculate_route_cost(
-                route,
-                distance_matrix
-            )
+            "cost": calculate_route_cost(route,distance_matrix)
         })
 
     if customers:
@@ -117,10 +90,10 @@ def solve_vrp(
 
     return routes
 def calculate_total_cost(routes):
-    total_cost = sum(
-        route_data["cost"]
-        for route_data in routes
-    )
+    total_cost= 0
+    for route_data in routes:
+        route_cost = route_data["cost"]
+        total_cost = total_cost+route_cost
 
     return total_cost
 
@@ -138,25 +111,42 @@ def validate_routes(routes,demands,depot , vehicle_capacity):
         if route[-1] != depot:
             errors.append(f"Vehicle {vehicle_index} route does not end at the depot.")
         
-        customers_in_route = [
-            node for node in route if node != depot
-        ]
-        route_load =sum(demands[customer]
-                        for customer in customers_in_route)
+        customers_in_route = []
+
+        for node in route:
+            if node != depot:
+                customers_in_route.append(node)
+
+
+
+        route_load =0.0
+        for customer in customers_in_route:
+            customer_demand = demands[customer]
+            route_load = route_load+customer_demand
         route_loads.append(route_load)
         if route_load > vehicle_capacity:
             errors.append(f"Vehicle {vehicle_index} capacity violation: "
             f"{route_load:.2f} > {vehicle_capacity}")                
 
         served_customers.extend(customers_in_route)
-    excepted_customers = {node for node in range(len(demands)) if node != depot and demands[node] > 0}
+
+    expected_customers = set()
+    for node in range(len(demands)):
+        if node != depot and demands[node]>0:
+            expected_customers.add(node)
 
     served_customers_set = set(served_customers)
-    missing_customers =(excepted_customers -served_customers_set)
+    missing_customers =(expected_customers -served_customers_set)
 
     if missing_customers:
         errors.append(f"Missing customers: {sorted(missing_customers)}")
-    duplicate_customers = [customer for customer in served_customers if served_customers.count(customer) > 1]
+
+    duplicate_customers= []
+    for customer in served_customers:
+        customer_count= served_customers.count(customer)
+        if customer_count>1:
+            duplicate_customers.append(customer)
+
     if duplicate_customers:
         errors.append(f"Duplicate customers: {sorted(set(duplicate_customers))}")
 

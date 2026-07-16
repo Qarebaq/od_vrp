@@ -11,7 +11,7 @@ def load_config(config_path = "config.json"):#just importing config file here
     return config
 
 def generate_network(config):
-    network_config = config["network"]
+    network_config =config["network"]
 
 
     number_of_nodes =network_config["number_of_nodes"]
@@ -70,13 +70,26 @@ def generate_od_true(config):
 
 def create_assignment_matrix(graph):#P matrix is created here
     edge_list = list(graph.edges)
-    od_pairs = [(origin, destination) for origin in graph.nodes for destination in graph.nodes if origin != destination]
+
+    od_pairs= []
+    for origin in graph.nodes:
+        for destination in graph.nodes:
+            if origin !=destination:
+                pair= (origin,destination)
+                od_pairs.append(pair)
+
+
     number_of_edges = len(edge_list)
     number_of_od_pairs = len(od_pairs)
 
     assignment_matrix = np.zeros((number_of_edges, number_of_od_pairs), dtype=int)
 
-    edge_index = {edge: index for index, edge in enumerate(edge_list)}
+    edge_index= {}
+    index= 0
+    for edge in edge_list:
+        edge_index[edge]= index
+        index = index+1
+
     shortest_paths = {}
     for column, (origin, destination) in enumerate(od_pairs):
         path = nx.shortest_path(
@@ -98,12 +111,20 @@ def create_assignment_matrix(graph):#P matrix is created here
 
 
 def generate_link_counts(assignment_matrix , od_true, od_pairs, config):
-    od_vector =np.array([od_true[origin, destination] for origin, destination in od_pairs])
+
+    od_values= []
+    for pair in od_pairs:
+        origin = pair[0]
+        destination = pair[1]
+        value = od_true[origin, destination]
+        od_values.append(value)
+    od_vector= np.array(od_values)
+
     true_link_counts = assignment_matrix @ od_vector
     noise_level = config["od_generator"]["noise_level"]
 
     if noise_level>0:
-        rng = np.random.default_rng(config["seed"] + 2)
+        rng = np.random.default_rng(config["seed"] + 2)#Random Number Generator
         noise = rng.normal(
             loc=0,
             scale=noise_level * np.maximum(true_link_counts, 1)
@@ -114,6 +135,11 @@ def generate_link_counts(assignment_matrix , od_true, od_pairs, config):
     else:
         observed_link_counts = true_link_counts.copy()
     return observed_link_counts, true_link_counts, od_vector
+
+
+
+
+
 
 if __name__ =="__main__":
 
@@ -165,13 +191,13 @@ if __name__ =="__main__":
     # print("\nP shape:")
     # print(assignment_matrix.shape)
 #testing link counts
-    print("\nOD true:")
-    print(od_true)
+    # print("\nOD true:")
+    # print(od_true)
 
-    print("\nTrue link counts:")
-    for edge, count in zip(edge_list, true_link_counts):
-        print(edge, ":", count)
+    # print("\nTrue link counts:")
+    # for edge, count in zip(edge_list, true_link_counts):
+    #     print(edge, ":", count)
 
-    print("\nObserved link counts:")
-    for edge, count in zip(edge_list, link_counts):
-        print(edge, ":", count)
+    # print("\nObserved link counts:")
+    # for edge, count in zip(edge_list, link_counts):
+    #     print(edge, ":", count)
